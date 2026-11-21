@@ -11,9 +11,20 @@ if (!DB_URI) {
   );
 }
 
+// The deployed frontend. Used when the server runs on Vercel but CLIENT_URL
+// is missing or still points to localhost (a common copy-paste mistake).
+const LIVE_CLIENT_URL = "https://salonbook-client-psi.vercel.app";
+
+function getClientUrl() {
+  const fromEnv = (process.env.CLIENT_URL || "").replace(/\/$/, "");
+  const onVercel = Boolean(process.env.VERCEL);
+  if (onVercel && (!fromEnv || fromEnv.includes("localhost"))) return LIVE_CLIENT_URL;
+  return fromEnv || "http://localhost:3000";
+}
+
 export const env = {
   PORT: Number(process.env.PORT) || 5000,
   DB_URI,
-  // Live frontend URL. It is also the JWT issuer/audience, so it must match exactly.
-  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
+  // Frontend URL. It is also the JWT issuer/audience, so it must match exactly.
+  CLIENT_URL: getClientUrl(),
 };
