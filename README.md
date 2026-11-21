@@ -32,6 +32,9 @@ REST API for **SalonBook**, a salon appointment booking platform. Customers brow
 | GET / PATCH | `/users`, `/users/:id/block` | Admin |
 | GET | `/transactions` / `/transactions/my` | Admin / Customer |
 | GET | `/stats/admin` / `/stats/customer` | Admin / Customer |
+| POST | `/payments/create-checkout-session` | Customer (own, confirmed, unpaid) |
+| GET | `/payments/status/:appointmentId` | Customer (own) |
+| POST | `/api/webhooks/stripe` | Stripe only (signature verified) |
 
 ## Scripts
 
@@ -76,8 +79,8 @@ Only the names are listed here. Never commit your real `.env` file.
 | `PORT` | Port the API listens on (default 5000) |
 | `DB_URI` | MongoDB connection string |
 | `CLIENT_URL` | Frontend URL (CORS and JWT issuer/audience) |
-| `STRIPE_SECRET_KEY` | Stripe secret key (added with payments) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (added with payments) |
+| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
 
 ## Links
 
