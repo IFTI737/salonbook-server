@@ -10,7 +10,7 @@ const router = Router();
 // Checks the body of add/update requests. `partial` = update (fields are optional).
 function readServiceBody(body, partial = false) {
   const data = {};
-  const { serviceName, category, description, price, duration, image } = body || {};
+  const { serviceName, category, description, price, duration, image, status } = body || {};
 
   if (serviceName !== undefined || !partial) {
     if (!serviceName || String(serviceName).trim().length < 3) {
@@ -43,6 +43,11 @@ function readServiceBody(body, partial = false) {
   if (image !== undefined || !partial) {
     if (!image || !/^https?:\/\//.test(image)) throw new ApiError(400, "Please upload a service image");
     data.image = image;
+  }
+  // Status is optional. A new service is active unless the admin picks inactive.
+  if (status !== undefined) {
+    if (!["active", "inactive"].includes(status)) throw new ApiError(400, "Status must be active or inactive");
+    data.status = status;
   }
   return data;
 }
@@ -95,7 +100,7 @@ router.get("/admin/all", checkAuthenticatedUser, verifyRole(["admin"]), async (r
 // POST /services -> add a new service
 router.post("/", checkAuthenticatedUser, verifyRole(["admin"]), async (req, res) => {
   const data = readServiceBody(req.body);
-  const service = { ...data, status: "active", createdAt: new Date() };
+  const service = { status: "active", ...data, createdAt: new Date() };
   const result = await servicesCollection.insertOne(service);
   sendSuccess(res, { _id: result.insertedId, ...service }, "Service added", 201);
 });
