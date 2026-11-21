@@ -40,7 +40,7 @@ router.get("/customer", verifyRole(["customer"]), async (req, res) => {
 
 // GET /stats/admin -> numbers for the admin overview
 router.get("/admin", verifyRole(["admin"]), async (req, res) => {
-  const [totalServices, activeServices, totalCustomers, blockedUsers, appointments, revenueRows, recent] =
+  const [totalServices, activeServices, totalCustomers, blockedUsers, appointments, revenueRows, paidPayments, recent] =
     await Promise.all([
       servicesCollection.countDocuments(),
       servicesCollection.countDocuments({ status: "active" }),
@@ -50,6 +50,7 @@ router.get("/admin", verifyRole(["admin"]), async (req, res) => {
       transactionsCollection
         .aggregate([{ $match: { status: "paid" } }, { $group: { _id: null, total: { $sum: "$amount" } } }])
         .toArray(),
+      transactionsCollection.countDocuments({ status: "paid" }),
       appointmentsCollection.find().sort({ createdAt: -1 }).limit(5).toArray(),
     ]);
 
@@ -62,6 +63,7 @@ router.get("/admin", verifyRole(["admin"]), async (req, res) => {
       blockedUsers,
       appointments,
       revenue: revenueRows[0]?.total || 0,
+      paidPayments,
       recent,
     },
     "Admin stats",
