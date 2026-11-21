@@ -17,8 +17,9 @@ export async function connectDB() {
   return db;
 }
 
-// "user" is created and managed by Better Auth on the client side.
+// "user" and "session" are created and managed by Better Auth on the client side.
 export const usersCollection = db.collection("user");
+export const sessionsCollection = db.collection("session");
 export const servicesCollection = db.collection("services");
 export const appointmentsCollection = db.collection("appointments");
 export const transactionsCollection = db.collection("transactions");
