@@ -1,0 +1,19 @@
+{
+  "name": "salonbook-server",
+  "version": "1.0.0",
+  "description": "Express + MongoDB API for SalonBook, a salon appointment booking platform",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jose": "^6.2.17",
+    "mongodb": "^7.8.0"
+  }
+}
