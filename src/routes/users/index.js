@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { usersCollection, sessionsCollection } from "../../config/db.js";
+import { usersCollection, sessionsCollection, appointmentsCollection } from "../../config/db.js";
 import { checkAuthenticatedUser, verifyRole } from "../../middleware/auth.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { sendSuccess } from "../../utils/apiResponse.js";
@@ -11,13 +11,19 @@ const router = Router();
 router.use(checkAuthenticatedUser, verifyRole(["admin"]));
 
 // GET /users -> every user (no passwords: Better Auth keeps them in the "account" collection)
+// Each user also carries phone and how many appointments they made, for the "view details" popup.
 router.get("/", async (req, res) => {
-  const users = await usersCollection
-    .find()
-    .project({ name: 1, email: 1, image: 1, role: 1, isBlocked: 1, createdAt: 1 })
-    .sort({ createdAt: -1 })
-    .toArray();
-  sendSuccess(res, users, "All users");
+  const [users, counts] = await Promise.all([
+    usersCollection
+      .find()
+      .project({ name: 1, email: 1, image: 1, phone: 1, role: 1, isBlocked: 1, createdAt: 1 })
+      .sort({ createdAt: -1 })
+      .toArray(),
+    appointmentsCollection.aggregate([{ $group: { _id: "$customerId", count: { $sum: 1 } } }]).toArray(),
+  ]);
+  const countById = new Map(counts.map((c) => [String(c._id), c.count]));
+  const data = users.map((u) => ({ ...u, appointmentCount: countById.get(String(u._id)) || 0 }));
+  sendSuccess(res, data, "All users");
 });
 
 // PATCH /users/:id/block  body: { isBlocked: true | false }
