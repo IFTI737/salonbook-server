@@ -16,7 +16,9 @@ if (!DB_URI) {
 const LIVE_CLIENT_URL = "https://salonbook-client-psi.vercel.app";
 
 function getClientUrl() {
-  const fromEnv = (process.env.CLIENT_URL || "").replace(/\/$/, "");
+  let fromEnv = (process.env.CLIENT_URL || "").trim().replace(/\/+$/, "");
+  // A value pasted without "https://" would crash new URL(), so add it.
+  if (fromEnv && !/^https?:\/\//i.test(fromEnv)) fromEnv = `https://${fromEnv}`;
   const onVercel = Boolean(process.env.VERCEL);
   if (onVercel && (!fromEnv || fromEnv.includes("localhost"))) return LIVE_CLIENT_URL;
   return fromEnv || "http://localhost:3000";
